@@ -1,0 +1,12 @@
+[package]
+name = "kitty-lang"
+version = "0.0.0"
+authors = ["Scott MacDonald"]
+description = "An intepreter for the kitty language"
+edition.workspace = true
+license.workspace = true
+homepage.workspace = true
+repository.workspace = true
+
+[dependencies]
+thiserror.workspace = true
