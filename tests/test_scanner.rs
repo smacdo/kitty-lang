@@ -137,3 +137,38 @@ fn scanner_disambiguates_two_char_lexemes() {
         ]
     )
 }
+
+#[test]
+fn scanner_skips_whitespace() {
+    //................01234 567890 123456
+    assert_eq!(
+        Scanner::new("  == \t= =  \n<>   ").collect::<Vec<_>>(),
+        vec![
+            Lexeme {
+                token: Token::EqualEqual,
+                index: 2,
+                length: 2
+            },
+            Lexeme {
+                token: Token::Equal,
+                index: 6,
+                length: 1
+            },
+            Lexeme {
+                token: Token::Equal,
+                index: 8,
+                length: 1
+            },
+            Lexeme {
+                token: Token::Less,
+                index: 12,
+                length: 1
+            },
+            Lexeme {
+                token: Token::Greater,
+                index: 13,
+                length: 1
+            },
+        ]
+    )
+}

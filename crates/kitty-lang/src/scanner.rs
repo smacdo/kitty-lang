@@ -39,8 +39,7 @@ impl<'a> Scanner<'a> {
     fn try_consume_char(&mut self, expected: char) -> bool {
         if let Some(c) = self.chars.peek() {
             if *c == expected {
-                self.current_i += 1;
-                assert!(self.chars.next().is_some());
+                self.advance();
 
                 return true;
             }
@@ -48,12 +47,29 @@ impl<'a> Scanner<'a> {
 
         false
     }
+
+    // Advance the scanner forward one character while continuing to read the
+    // current lexeme.
+    fn advance(&mut self) {
+        self.current_i += 1;
+        assert!(self.chars.next().is_some());
+    }
 }
 
 impl Iterator for Scanner<'_> {
     type Item = Lexeme;
 
     fn next(&mut self) -> Option<Self::Item> {
+        // Skip whitespace.
+        while let Some(c) = self.chars.peek() {
+            if *c == ' ' || *c == '\t' || *c == '\r' || *c == '\n' {
+                self.advance();
+            } else {
+                break;
+            }
+        }
+
+        // Try to read the first character of the next lexeme.
         self.start_i = self.current_i;
 
         if let Some(c) = self.chars.next() {
