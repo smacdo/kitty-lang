@@ -4,16 +4,21 @@ version = 4
 
 [[package]]
 name = "kitty-lang"
-version = "0.0.0"
+version = "0.1.0"
 dependencies = [
- "thiserror",
+ "kitty-lang-ast",
+ "kitty-lang-interpreter",
 ]
 
 [[package]]
-name = "kitty-lang-cli"
-version = "0.1.0"
+name = "kitty-lang-ast"
+version = "0.0.0"
+
+[[package]]
+name = "kitty-lang-interpreter"
+version = "0.0.0"
 dependencies = [
- "kitty-lang",
+ "thiserror",
 ]
 
 [[package]]

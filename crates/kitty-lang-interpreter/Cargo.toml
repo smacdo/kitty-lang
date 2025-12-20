@@ -1,5 +1,5 @@
 [package]
-name = "kitty-lang"
+name = "kitty-lang-interpreter"
 version = "0.0.0"
 authors = ["Scott MacDonald"]
 description = "An intepreter for the kitty language"

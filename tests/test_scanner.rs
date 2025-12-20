@@ -1,4 +1,4 @@
-use kitty_lang::{
+use kitty_lang_interpreter::{
     scanner::{Lexeme, Scanner},
     tokens::{InvalidTokenReason, Token},
 };
