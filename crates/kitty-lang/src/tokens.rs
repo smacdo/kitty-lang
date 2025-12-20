@@ -27,40 +27,38 @@ pub enum Token {
     LessEqual,
 
     // Literals.
-    Identifier {
-        /// Index of the identifier's first character.
-        start_index: usize,
-        /// Number of characters in the literal.
-        len: usize,
-    },
-    String {
-        /// Index of the string's first character past the initial quote. This is `None` when the
-        /// string is empty (length 0).
-        start: Option<usize>,
-        /// Number of characters in the string.
-        len: usize,
-    },
-    Float(f64),
-    Int(i64),
+    Identifier,
+    String,
+    Float,
+    Int,
 
     // Keywords.
     And,
     Or,
+    Not,
     Break,
     Continue,
+    If,
     Else,
+    True,
     False,
+    Null,
     Fn,
     For,
-    If,
     Var,
     Const,
-    Null,
     Return,
-    True,
     While,
 
     // Misc.
     Comment,
-    Invalid,
+    Invalid(InvalidTokenReason),
+}
+
+#[derive(Debug, PartialEq)]
+pub enum InvalidTokenReason {
+    UnknownChars,
+    UnterminatedString,
+    BangNotSupported,
+    UnknownNumberChars,
 }
