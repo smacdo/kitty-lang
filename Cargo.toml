@@ -20,6 +20,6 @@ name = "kli"
 path = "src/kli.rs"
 
 [dependencies]
-kitty-lang-ast = { path = "./crates/kitty-lang-ast" }
-kitty-lang-interpreter = { path = "./crates/kitty-lang-interpreter" }
+kitty-lang-ast = { path = "./crates/kitty-lang-ast", version = "0.0.1" }
+kitty-lang-interpreter = { path = "./crates/kitty-lang-interpreter", version = "0.0.1" }
 
