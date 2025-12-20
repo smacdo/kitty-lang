@@ -1,16 +1,23 @@
 [package]
 name = "kitty-lang"
-version = "0.0.1"
-edition = "2024"
+description = "An experimental typed programming language"
+version.workspace = true
+authors.workspace = true
+edition.workspace = true
+license.workspace = true
+homepage.workspace = true
+repository.workspace = true
 
 [workspace]
 members = ["crates/*"]
 
 [workspace.package]
 edition = "2024"
-license = "Apache-2.0"
+version = "0.0.1"
+authors = ["Scott MacDonald"]
 homepage = "https://github.com/smacdo/kitty-lang"
 repository = "https://github.com/smacdo/kitty-lang"
+license = "Apache-2.0"
 
 [workspace.dependencies]
 thiserror = "2"
