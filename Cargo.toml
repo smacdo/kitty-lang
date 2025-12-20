@@ -13,7 +13,7 @@ members = ["crates/*"]
 
 [workspace.package]
 edition = "2024"
-version = "0.0.1"
+version = "0.0.2"
 authors = ["Scott MacDonald"]
 homepage = "https://github.com/smacdo/kitty-lang"
 repository = "https://github.com/smacdo/kitty-lang"
@@ -27,6 +27,6 @@ name = "kli"
 path = "src/kli.rs"
 
 [dependencies]
-kitty-lang-ast = { path = "./crates/kitty-lang-ast", version = "0.0.1" }
-kitty-lang-interpreter = { path = "./crates/kitty-lang-interpreter", version = "0.0.1" }
+kitty-lang-ast = { path = "./crates/kitty-lang-ast", version = "0.0.2" }
+kitty-lang-interpreter = { path = "./crates/kitty-lang-interpreter", version = "0.0.2" }
 
