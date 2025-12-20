@@ -1,6 +1,6 @@
 [package]
 name = "kitty-lang-ast"
-version = "0.0.0"
+version = "0.0.1"
 authors = ["Scott MacDonald"]
 description = "The abstract syntax tree and supporting utils for the kitty language"
 edition.workspace = true
