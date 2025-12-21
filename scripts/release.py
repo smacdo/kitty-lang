@@ -4,12 +4,17 @@ Release management script for kitty-lang.
 
 This script automates the release process by:
 1. Verifying no uncommitted changes exist
-2. Running all tests to ensure they pass
-3. Updating version in workspace Cargo.toml
-4. Updating dependency versions in workspace members
-5. Updating Cargo.lock
-6. Committing the version bump
-7. Creating a git tag
+2. Running formatting check (cargo fmt --all -- --check)
+3. Running Clippy linter (cargo clippy --all-targets --all-features -- -D warnings)
+4. Running build (cargo build --workspace)
+5. Running all tests (cargo test --workspace)
+6. Updating version in workspace Cargo.toml
+7. Updating dependency versions in workspace members
+8. Updating Cargo.lock
+9. Committing the version bump
+10. Creating a git tag
+
+These checks match the CI workflow to ensure releases won't fail in CI.
 
 Usage:
     python scripts/release.py
@@ -113,6 +118,31 @@ def run_build() -> bool:
         return True
     except subprocess.CalledProcessError:
         print("❌ Build failed")
+        return False
+
+
+def run_fmt_check() -> bool:
+    """Check that code is properly formatted."""
+    print("\nChecking code formatting...")
+    try:
+        run_command(["cargo", "fmt", "--all", "--", "--check"])
+        print("✓ Code is properly formatted")
+        return True
+    except subprocess.CalledProcessError:
+        print("❌ Code formatting check failed")
+        print("Run 'cargo fmt --all' to fix formatting issues")
+        return False
+
+
+def run_clippy() -> bool:
+    """Run Clippy linter checks."""
+    print("\nRunning Clippy linter...")
+    try:
+        run_command(["cargo", "clippy", "--all-targets", "--all-features", "--", "-D", "warnings"])
+        print("✓ Clippy checks passed")
+        return True
+    except subprocess.CalledProcessError:
+        print("❌ Clippy checks failed")
         return False
 
 
@@ -236,6 +266,16 @@ def main():
         action="store_true",
         help="Skip build verification (not recommended)"
     )
+    parser.add_argument(
+        "--skip-fmt",
+        action="store_true",
+        help="Skip formatting check (not recommended)"
+    )
+    parser.add_argument(
+        "--skip-clippy",
+        action="store_true",
+        help="Skip Clippy linting (not recommended)"
+    )
 
     args = parser.parse_args()
 
@@ -296,21 +336,35 @@ def main():
     if not check_git_clean():
         sys.exit(1)
 
-    # Step 2: Run tests
-    if not args.skip_tests:
-        if not run_tests():
+    # Step 2: Run formatting check
+    if not args.skip_fmt:
+        if not run_fmt_check():
             sys.exit(1)
     else:
-        print("\n⚠️  Skipping tests (--skip-tests)")
+        print("\n⚠️  Skipping formatting check (--skip-fmt)")
 
-    # Step 3: Run build
+    # Step 3: Run Clippy
+    if not args.skip_clippy:
+        if not run_clippy():
+            sys.exit(1)
+    else:
+        print("\n⚠️  Skipping Clippy (--skip-clippy)")
+
+    # Step 4: Run build
     if not args.skip_build:
         if not run_build():
             sys.exit(1)
     else:
         print("\n⚠️  Skipping build (--skip-build)")
 
-    # Step 4: Update versions in Cargo.toml files
+    # Step 5: Run tests
+    if not args.skip_tests:
+        if not run_tests():
+            sys.exit(1)
+    else:
+        print("\n⚠️  Skipping tests (--skip-tests)")
+
+    # Step 6: Update versions in Cargo.toml files
     print(f"\nUpdating versions from {current_version} to {new_version}...")
 
     files_to_update = [
@@ -325,15 +379,15 @@ def main():
                 status = "[DRY RUN] " if args.dry_run else ""
                 print(f"  {status}✓ Updated {file_path.relative_to(repo_root)}")
 
-    # Step 5: Update Cargo.lock
+    # Step 7: Update Cargo.lock
     if not update_cargo_lock(args.dry_run):
         sys.exit(1)
 
-    # Step 6: Commit changes
+    # Step 8: Commit changes
     if not commit_version_bump(new_version, args.dry_run):
         sys.exit(1)
 
-    # Step 7: Create git tag
+    # Step 9: Create git tag
     if not create_git_tag(new_version, args.dry_run):
         sys.exit(1)
 
