@@ -43,12 +43,11 @@ impl<'a> Scanner<'a> {
     }
 
     fn try_consume_char(&mut self, expected: char) -> bool {
-        if let Some(c) = self.chars.peek() {
-            if *c == expected {
-                self.advance();
-
-                return true;
-            }
+        if let Some(c) = self.chars.peek()
+            && *c == expected
+        {
+            self.advance();
+            return true;
         }
 
         false
