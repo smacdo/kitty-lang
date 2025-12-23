@@ -20,6 +20,7 @@ repository = "https://github.com/smacdo/kitty-lang"
 license = "Apache-2.0"
 
 [workspace.dependencies]
+kitty-lang-ast = { path = "./crates/kitty-lang-ast", version = "0.0.2" }
 thiserror = "2"
 slotmap = "1"
 
@@ -28,5 +29,5 @@ name = "kli"
 path = "src/kli.rs"
 
 [dependencies]
-kitty-lang-ast = { path = "./crates/kitty-lang-ast", version = "0.0.2" }
 kitty-lang-interpreter = { path = "./crates/kitty-lang-interpreter", version = "0.0.2" }
+kitty-lang-ast.workspace = true

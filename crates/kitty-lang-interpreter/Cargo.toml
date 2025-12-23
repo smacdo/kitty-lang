@@ -9,4 +9,6 @@ homepage.workspace = true
 repository.workspace = true
 
 [dependencies]
+kitty-lang-ast.workspace = true
 thiserror.workspace = true
+slotmap.workspace = true

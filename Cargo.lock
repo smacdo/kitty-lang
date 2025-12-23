@@ -21,6 +21,8 @@ dependencies = [
 name = "kitty-lang-interpreter"
 version = "0.0.2"
 dependencies = [
+ "kitty-lang-ast",
+ "slotmap",
  "thiserror",
 ]
 
