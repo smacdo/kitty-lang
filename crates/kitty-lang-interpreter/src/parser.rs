@@ -1,20 +1,14 @@
 use kitty_lang_ast::{AstNodeGraph, ExprNodeKey};
 
-use crate::scanner::Scanner;
+use crate::{pratt, scanner::Scanner};
 
+#[derive(Debug)]
 pub struct ParseError {}
 
 pub fn parse_expr(scanner: &mut Scanner) -> Result<(AstNodeGraph, ExprNodeKey), ParseError> {
     let mut ast: AstNodeGraph = Default::default();
-    todo!("implement me! -- parser.rs:13");
-    //let expr_nk = equality(scanner, &mut ast)?;
-    //Ok((ast, expr_nk))
-}
+    let expr_nk =
+        pratt::parse_expr_with_precedence(&pratt::PrattGrammar::new(), scanner, &mut ast)?;
 
-fn equality(scanner: &mut Scanner, ast: &mut AstNodeGraph) -> Result<ExprNodeKey, ParseError> {
-    todo!("implement me! -- parser.rs:13");
-}
-
-fn comparison(scanner: &mut Scanner, ast: &mut AstNodeGraph) -> Result<ExprNodeKey, ParseError> {
-    todo!("implement me! -- parser.rs:19");
+    Ok((ast, expr_nk))
 }

@@ -32,31 +32,27 @@ from pathlib import Path
 from typing import Optional
 
 
-def run_command(cmd: list[str], check: bool = True, capture: bool = False) -> subprocess.CompletedProcess:
+def run_command(
+    cmd: list[str], check: bool = True, capture: bool = False
+) -> subprocess.CompletedProcess:
     """Run a shell command and return the result."""
     if capture:
         result = subprocess.run(cmd, capture_output=True, text=True, check=check)
     else:
-        result = subprocess.run(cmd, check=check)
+        result = subprocess.run(cmd, check=check, text=True)
     return result
 
 
 def get_repo_root() -> Path:
     """Get the repository root directory."""
-    result = run_command(
-        ["git", "rev-parse", "--show-toplevel"],
-        capture=True
-    )
+    result = run_command(["git", "rev-parse", "--show-toplevel"], capture=True)
     return Path(result.stdout.strip())
 
 
 def check_git_clean() -> bool:
     """Verify there are no uncommitted changes."""
     print("Checking for uncommitted changes...")
-    result = run_command(
-        ["git", "status", "--porcelain"],
-        capture=True
-    )
+    result = run_command(["git", "status", "--porcelain"], capture=True)
     if result.stdout.strip():
         print("❌ Error: There are uncommitted changes:")
         print(result.stdout)
@@ -76,16 +72,17 @@ def get_current_version(cargo_toml: Path) -> str:
 
 def validate_version(version: str) -> bool:
     """Validate that version follows semver format."""
-    pattern = r'^\d+\.\d+\.\d+(-[\w.]+)?(\+[\w.]+)?$'
+    pattern = r"^\d+\.\d+\.\d+(-[\w.]+)?(\+[\w.]+)?$"
     return bool(re.match(pattern, version))
 
 
 def compare_versions(v1: str, v2: str) -> int:
     """Compare two semver versions. Returns -1 if v1 < v2, 0 if equal, 1 if v1 > v2."""
+
     def parse_version(v: str) -> tuple:
         # Simple comparison, just handle base version
-        base = v.split('-')[0].split('+')[0]
-        return tuple(map(int, base.split('.')))
+        base = v.split("-")[0].split("+")[0]
+        return tuple(map(int, base.split(".")))
 
     p1 = parse_version(v1)
     p2 = parse_version(v2)
@@ -138,7 +135,17 @@ def run_clippy() -> bool:
     """Run Clippy linter checks."""
     print("\nRunning Clippy linter...")
     try:
-        run_command(["cargo", "clippy", "--all-targets", "--all-features", "--", "-D", "warnings"])
+        run_command(
+            [
+                "cargo",
+                "clippy",
+                "--all-targets",
+                "--all-features",
+                "--",
+                "-D",
+                "warnings",
+            ]
+        )
         print("✓ Clippy checks passed")
         return True
     except subprocess.CalledProcessError:
@@ -146,7 +153,9 @@ def run_clippy() -> bool:
         return False
 
 
-def update_version_in_file(file_path: Path, old_version: str, new_version: str, dry_run: bool = False) -> bool:
+def update_version_in_file(
+    file_path: Path, old_version: str, new_version: str, dry_run: bool = False
+) -> bool:
     """Update version in a Cargo.toml file."""
     content = file_path.read_text()
 
@@ -155,14 +164,16 @@ def update_version_in_file(file_path: Path, old_version: str, new_version: str, 
         r'(^\s*version\s*=\s*)"' + re.escape(old_version) + '"',
         r'\1"' + new_version + '"',
         content,
-        flags=re.MULTILINE
+        flags=re.MULTILINE,
     )
 
     # Update dependency versions for workspace crates
     updated = re.sub(
-        r'(kitty-lang(?:-[\w]+)?\s*=\s*\{[^}]*version\s*=\s*)"' + re.escape(old_version) + '"',
+        r'(kitty-lang(?:-[\w]+)?\s*=\s*\{[^}]*version\s*=\s*)"'
+        + re.escape(old_version)
+        + '"',
         r'\1"' + new_version + '"',
-        updated
+        updated,
     )
 
     if updated != content:
@@ -200,11 +211,18 @@ def commit_version_bump(version: str, dry_run: bool = False) -> bool:
     try:
         # Add all Cargo.toml files and Cargo.lock
         run_command(["git", "add", "Cargo.toml", "Cargo.lock"])
-        run_command(["git", "add", "crates/*/Cargo.toml"], check=False)  # May not exist in some repos
+        run_command(
+            ["git", "add", "crates/*/Cargo.toml"], check=False
+        )  # May not exist in some repos
 
-        run_command([
-            "git", "commit", "-m", f"version bump to {version}\n\n🤖 Generated with release script"
-        ])
+        run_command(
+            [
+                "git",
+                "commit",
+                "-m",
+                f"version bump to {version}\n\n🤖 Generated with release script",
+            ]
+        )
         print("✓ Version bump committed")
         return True
     except subprocess.CalledProcessError:
@@ -221,10 +239,7 @@ def create_git_tag(version: str, dry_run: bool = False) -> bool:
         return True
 
     try:
-        run_command([
-            "git", "tag", "-a", tag_name,
-            "-m", f"Release {version}"
-        ])
+        run_command(["git", "tag", "-a", tag_name, "-m", f"Release {version}"])
         print(f"✓ Tag {tag_name} created")
         return True
     except subprocess.CalledProcessError:
@@ -249,32 +264,28 @@ def main():
     parser = argparse.ArgumentParser(description="Manage kitty-lang releases")
     parser.add_argument(
         "--version",
-        help="New version number (e.g., 0.1.0). If not provided, will prompt interactively."
+        help="New version number (e.g., 0.1.0). If not provided, will prompt interactively.",
     )
     parser.add_argument(
-        "--dry-run",
-        action="store_true",
-        help="Preview changes without applying them"
+        "--dry-run", action="store_true", help="Preview changes without applying them"
     )
     parser.add_argument(
-        "--skip-tests",
-        action="store_true",
-        help="Skip running tests (not recommended)"
+        "--skip-tests", action="store_true", help="Skip running tests (not recommended)"
     )
     parser.add_argument(
         "--skip-build",
         action="store_true",
-        help="Skip build verification (not recommended)"
+        help="Skip build verification (not recommended)",
     )
     parser.add_argument(
         "--skip-fmt",
         action="store_true",
-        help="Skip formatting check (not recommended)"
+        help="Skip formatting check (not recommended)",
     )
     parser.add_argument(
         "--skip-clippy",
         action="store_true",
-        help="Skip Clippy linting (not recommended)"
+        help="Skip Clippy linting (not recommended)",
     )
 
     args = parser.parse_args()
@@ -314,23 +325,25 @@ def main():
 
     # Check version is newer
     if compare_versions(new_version, current_version) <= 0:
-        print(f"⚠️  Warning: New version {new_version} is not greater than current version {current_version}")
+        print(
+            f"⚠️  Warning: New version {new_version} is not greater than current version {current_version}"
+        )
         if not args.dry_run:
             response = input("Continue anyway? [y/N]: ").strip().lower()
-            if response != 'y':
+            if response != "y":
                 print("Aborting.")
                 sys.exit(1)
 
     if args.dry_run:
-        print(f"\n{'='*60}")
+        print(f"\n{'=' * 60}")
         print("DRY RUN MODE - No changes will be made")
-        print(f"{'='*60}")
+        print(f"{'=' * 60}")
 
     print(f"\n📦 Release Plan")
-    print(f"{'='*60}")
+    print(f"{'=' * 60}")
     print(f"Current version: {current_version}")
     print(f"New version:     {new_version}")
-    print(f"{'='*60}\n")
+    print(f"{'=' * 60}\n")
 
     # Step 1: Check for uncommitted changes
     if not check_git_clean():
@@ -375,7 +388,9 @@ def main():
 
     for file_path in files_to_update:
         if file_path.exists():
-            if update_version_in_file(file_path, current_version, new_version, args.dry_run):
+            if update_version_in_file(
+                file_path, current_version, new_version, args.dry_run
+            ):
                 status = "[DRY RUN] " if args.dry_run else ""
                 print(f"  {status}✓ Updated {file_path.relative_to(repo_root)}")
 
@@ -392,9 +407,9 @@ def main():
         sys.exit(1)
 
     # Success!
-    print(f"\n{'='*60}")
+    print(f"\n{'=' * 60}")
     print("✓ Release preparation complete!")
-    print(f"{'='*60}")
+    print(f"{'=' * 60}")
 
     if args.dry_run:
         print("\nThis was a dry run. No changes were made.")

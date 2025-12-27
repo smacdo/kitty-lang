@@ -35,14 +35,14 @@ impl ExprVisitor<String> for PrettyPrinterVisitor<'_> {
 
 #[cfg(test)]
 mod tests {
-    use crate::ExprAstBuilder;
+    use crate::AstExprConstructor;
 
     use super::*;
 
     #[test]
     fn pretty_print_example() {
         let mut ast: AstNodeGraph = Default::default();
-        let mut builder = ExprAstBuilder::new(&mut ast);
+        let mut builder = AstExprConstructor::new(&mut ast);
         let expr_nk = builder.binary(
             crate::BinaryOp::Mul,
             |b| {

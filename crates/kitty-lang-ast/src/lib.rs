@@ -10,6 +10,7 @@ use slotmap::SlotMap;
 
 slotmap::new_key_type! { pub struct AstNodeKey; }
 
+#[derive(Debug, PartialEq)]
 pub enum AstNode {
     Expr(Expr),
 }
